@@ -225,9 +225,9 @@ class MetaDomainNetSptReptileAug(Dataset):
         # self.query_num = args.query_num
         self.seed = args.seed
 
-        self.target_domain = self.domains_short[args.target_domain]  # cfg.DATASET.TARGET_DOMAINS
+        self.target_domain = self.domains_short[args.target_domain]  
         source_domain = args.source_domain.split("/")
-        self.source_domain = [self.domains_short[d] for d in source_domain]  # cfg.DATASET.SOURCE_DOMAINS
+        self.source_domain = [self.domains_short[d] for d in source_domain]  
         # print(self.source_domain)
         self.transform = data_transform
         self.mode = mode
@@ -265,8 +265,6 @@ class MetaDomainNetSptReptileAug(Dataset):
                 domain_id = self.domain_ids[dname]
                 support_file = os.path.join(self.split_fewshot_path,
                                                  f"{dname}_labeled_{self.num_shots}.txt")
-                # support_file = os.path.join(self.split_fewshot_path,f"{dname}_mysplit_support{self.num_shots}_seed{self.seed}.txt")
-                # query_file = os.path.join(self.split_fewshot_path,f"{dname}_mysplit_query{self.query_num}_seed{self.seed}.txt")
 
                 if os.path.exists(support_file):
                     print(f"Find the support file: {support_file}!")
@@ -339,9 +337,9 @@ class MetaDomainNetSptReptileAug(Dataset):
         classnames = [label2cname[label] for label in labels]
         return label2cname, cname2label, classnames
 
-    def creat_batch(self): #2*2，并且扩展两个子任务
-        support_dict = defaultdict(list)  # 用于原始的任务， 两个域可以构造出四个任务，三个域可以构造出9个任务
-        support_aug_dict = defaultdict(list)  # 用于构造新的任务
+    def creat_batch(self): 
+        support_dict = defaultdict(list)  
+        support_aug_dict = defaultdict(list)
         for d in range(len(self.source_domain)):
             sample_cls_id_labeled = random.sample(range(len(self.source_support[d])), len(self.source_support[d]) // 2)
             for i in range(len(self.source_support[d])):
@@ -352,18 +350,18 @@ class MetaDomainNetSptReptileAug(Dataset):
             # print(len(support_dict[d]))
             # print(len(support_aug_dict[d]))
 
-        support = {}  # 原始的两个任务
+        support = {} 
         i = 0
         for d in range(len(self.source_domain)):
             support[i] = support_dict[d]
             i += 1
 
-        batch_domain_id = random.sample(range(len(self.source_domain)), len(self.source_domain))  # 3
-        batch_domain_aug1 = [random.randint(0, len(self.source_domain) - 1) for b in batch_domain_id]  # 3
-        batch_domain_aug2 = [random.randint(0, len(self.source_domain) - 1) for b in batch_domain_id]  # 3
-        # 可能出现3*3*3=27种情况
+        batch_domain_id = random.sample(range(len(self.source_domain)), len(self.source_domain)) 
+        batch_domain_aug1 = [random.randint(0, len(self.source_domain) - 1) for b in batch_domain_id]  
+        batch_domain_aug2 = [random.randint(0, len(self.source_domain) - 1) for b in batch_domain_id]  
+       
         # support_aug1, support_aug2 = [], []
-        for id1, id2, id3 in zip(batch_domain_id, batch_domain_aug1, batch_domain_aug2):  # 多构造出3个元任务
+        for id1, id2, id3 in zip(batch_domain_id, batch_domain_aug1, batch_domain_aug2): 
             random.shuffle(support_aug_dict[id1])
             random.shuffle(support_aug_dict[id2])
             random.shuffle(support_aug_dict[id3])
@@ -418,4 +416,4 @@ class MetaDomainNetSptReptileAug(Dataset):
             item = self.test[idx]
             image = Image.open(item.impath).convert('RGB')
             image = self.transform(image)
-            return image, item.label, item.classname   #构造跨域任务
+            return image, item.label, item.classname  
